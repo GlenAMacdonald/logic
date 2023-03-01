@@ -1,0 +1,1 @@
+// takes a logic object and negates it
