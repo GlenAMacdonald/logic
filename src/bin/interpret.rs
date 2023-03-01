@@ -68,4 +68,5 @@ mod tests {
         assert_eq!("candy", object_a.b);
         assert_eq!("=>", object_a.operator);
     }
+    
 }
