@@ -9,7 +9,7 @@ pub struct LogicObject <'a> {
 
 pub fn get_logic_operator(input_string: &str) -> &str {
     if input_string.contains("&") { return "&" }
-    else if input_string.contains("=>") { return "=>" }
+    else if input_string.contains(">") { return ">" }
     else if input_string.contains("|") { return "|" }
     else { return "" }
 }
@@ -63,9 +63,9 @@ mod tests {
 
     #[test]
     fn test_convert_apple_implies_candy() {
-        let object_a: LogicObject = convert("apple => candy");
+        let object_a: LogicObject = convert("apple > candy");
         assert_eq!("apple", object_a.a);
         assert_eq!("candy", object_a.b);
-        assert_eq!("=>", object_a.operator);
+        assert_eq!(">", object_a.operator);
     }
 }
