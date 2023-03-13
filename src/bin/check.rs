@@ -4,7 +4,7 @@ pub fn check(input_string: &str) -> bool {
     
     let mut n_operators: usize = input_string.chars().filter(|c| *c == '&').count();
     n_operators += input_string.chars().filter(|c| *c == '|').count();
-    n_operators += input_string.matches("=>").count();
+    n_operators += input_string.chars().filter(|c| *c == '>').count();
 
     if n_left_brackets != n_right_brackets {
         return false;
