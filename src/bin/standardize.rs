@@ -10,7 +10,7 @@ pub fn standardize(input_string: &str) -> String {
     replacements.push(FromToString{from:"^",        to:"&"});
     replacements.push(FromToString{from:"and",      to:"&"});
     replacements.push(FromToString{from:"or",       to:"|"});
-    replacements.push(FromToString{from:"implies",  to:"=>"});
+    replacements.push(FromToString{from:"implies",  to:">"});
     replacements.push(FromToString{from:"{",        to:"["});
     replacements.push(FromToString{from:"(",        to:"["});
     replacements.push(FromToString{from:"}",        to:"]"});
@@ -63,8 +63,8 @@ mod tests {
         assert_eq!("a & b",   standardize("a aNd b"));
         assert_eq!("a | b",   standardize("a or b"));
         assert_eq!("a | b",   standardize("a OR b"));
-        assert_eq!("a => b",  standardize("a implies b"));
-        assert_eq!("a => b",  standardize("a iMplIeS b"));
+        assert_eq!("a > b",  standardize("a implies b"));
+        assert_eq!("a > b",  standardize("a iMplIeS b"));
         assert_eq!("[a & b]", standardize("(a ^ b)"));
         assert_eq!("[a & b]", standardize("{a ^ b}"));
         assert_eq!("[a & b]", standardize("[a ^ b]"));
