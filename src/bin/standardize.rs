@@ -11,6 +11,7 @@ pub fn standardize(input_string: &str) -> String {
     replacements.push(FromToString{from:"and",      to:"&"});
     replacements.push(FromToString{from:"or",       to:"|"});
     replacements.push(FromToString{from:"implies",  to:">"});
+    replacements.push(FromToString{from:"=>",       to:">"});
     replacements.push(FromToString{from:"{",        to:"["});
     replacements.push(FromToString{from:"(",        to:"["});
     replacements.push(FromToString{from:"}",        to:"]"});
