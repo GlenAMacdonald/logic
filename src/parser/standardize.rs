@@ -43,17 +43,6 @@ pub fn tidy_ends(input_string: String) -> String {
     return return_string;
 }
 
-// pub fn interpret(input_string: str) -> bool {
-    
-//     let mut splitString = input_string.split('&');
-
-//     return true;
-// }
-
-fn main() {
-
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

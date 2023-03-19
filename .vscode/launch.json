@@ -1,0 +1,398 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'logic'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "logic",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'logic_class'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=logic_class",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "logic_class",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'logic_class'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=logic_class",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "logic_class",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'or'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=or",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "or",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'or'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=or",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "or",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'negate'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=negate",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "negate",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'negate'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=negate",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "negate",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'convert'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=convert",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "convert",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'convert'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=convert",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "convert",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'check'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=check",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "check",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'check'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=check",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "check",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'and'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=and",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "and",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'and'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=and",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "and",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'implies'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=implies",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "implies",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'implies'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=implies",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "implies",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'infix_to_postfix'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=infix_to_postfix",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "infix_to_postfix",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'infix_to_postfix'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=infix_to_postfix",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "infix_to_postfix",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'bracketize'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=bracketize",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "bracketize",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'bracketize'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=bracketize",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "bracketize",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'standardize'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=standardize",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "standardize",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'standardize'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=standardize",
+                    "--package=logic"
+                ],
+                "filter": {
+                    "name": "standardize",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}

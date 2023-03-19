@@ -4,8 +4,8 @@ use std::{collections::HashMap};
 
 fn generate_input_stack_precedence_map() -> HashMap<char,HashMap<&'static str,u8>>{
 
-    let close_precedence: HashMap<&str,u8> =    [("Stack",0),("Input",2)].into();
-    let open_precedence:  HashMap<&str,u8> =    [("Stack",1),("Input",10)].into();
+    let close_precedence: HashMap<&str,u8> =    [("Stack",0),("Input",0)].into(); // "Stack" = 0 as it's never going to be in the stack.
+    let open_precedence:  HashMap<&str,u8> =    [("Stack",0),("Input",10)].into();
     let neg_precedence: HashMap<&str,u8> =      [("Stack",9),("Input",8)].into();
     let and_precedence: HashMap<&str,u8> =      [("Stack",7),("Input",6)].into();
     let or_precedence: HashMap<&str,u8> =       [("Stack",5),("Input",4)].into();
@@ -24,6 +24,7 @@ fn generate_input_stack_precedence_map() -> HashMap<char,HashMap<&'static str,u8
     return operator_precedence;
 }
 
+/*
 fn generate_precendence_map() -> HashMap<char,HashMap<char,char>>{
     let neg_precedence:     HashMap<char,char> = [('!','r'),('&','l'),('|','l'),('>','l'),('~','l')].into();
     let and_precedence:     HashMap<char,char> = [('!','r'),('&','l'),('|','l'),('>','l'),('~','l')].into();
@@ -40,6 +41,7 @@ fn generate_precendence_map() -> HashMap<char,HashMap<char,char>>{
 
     return operator_precedence;
 }
+*/
 
 fn infix_to_postfix(input_string: &str) -> String {
     let mut output: Vec<char> = Vec::with_capacity(input_string.len()+2);
@@ -57,16 +59,21 @@ fn infix_to_postfix(input_string: &str) -> String {
         } else {
             let input_p = order_precedence[&character]["Input"];
             let mut found = false;
-            while !found {
+            while !found && !stack.is_empty() {
                 let stack_p = order_precedence[&stack.last().unwrap()]["Stack"];
                 if input_p <= stack_p {
                     let output_char = stack.pop().unwrap();
-                    if output_char != '[' && output_char != ']' {
+                    if output_char != '[' {
                         output.push(output_char);     
+                    } else if character == ']' {
+                        found = true;
                     }
                 } else {
-                    stack.push(character);
+                    if character != ']' {
+                        stack.push(character);
+                    }
                     found = true;
+
                 }
             }
         }
@@ -75,50 +82,48 @@ fn infix_to_postfix(input_string: &str) -> String {
     return output.iter().collect();
 }
 
-fn main(){
-
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    
+/*
+    #[test]
+    fn check_order_precedence(){
+        let order_p: HashMap<char,HashMap<char,char>> = generate_precendence_map();
+        assert_eq!('r',order_p[&'!'][&'!']);
+        assert_eq!('l',order_p[&'!'][&'&']);
+        assert_eq!('l',order_p[&'!'][&'|']);
+        assert_eq!('l',order_p[&'!'][&'>']);
+        assert_eq!('l',order_p[&'!'][&'~']);
+        assert_eq!('r',order_p[&'&'][&'!']);
+        assert_eq!('l',order_p[&'&'][&'&']);
+        assert_eq!('l',order_p[&'&'][&'|']);
+        assert_eq!('l',order_p[&'&'][&'>']);
+        assert_eq!('l',order_p[&'&'][&'~']);
+        assert_eq!('r',order_p[&'|'][&'!']);
+        assert_eq!('r',order_p[&'|'][&'&']);
+        assert_eq!('l',order_p[&'|'][&'|']);
+        assert_eq!('l',order_p[&'|'][&'>']);
+        assert_eq!('l',order_p[&'|'][&'~']);
+        assert_eq!('r',order_p[&'>'][&'!']);
+        assert_eq!('r',order_p[&'>'][&'&']);
+        assert_eq!('r',order_p[&'>'][&'|']);
+        assert_eq!('l',order_p[&'>'][&'>']);
+        assert_eq!('l',order_p[&'>'][&'~']);
+        assert_eq!('r',order_p[&'~'][&'!']);
+        assert_eq!('r',order_p[&'~'][&'&']);
+        assert_eq!('r',order_p[&'~'][&'|']);
+        assert_eq!('r',order_p[&'~'][&'>']);
+        assert_eq!('l',order_p[&'~'][&'~']);
+    }
+ */
 
-    // #[test]
-    // fn check_order_precedence(){
-    //     let order_p: HashMap<char,HashMap<char,char>> = generate_precendence_map();
-    //     assert_eq!('r',order_p[&'!'][&'!']);
-    //     assert_eq!('l',order_p[&'!'][&'&']);
-    //     assert_eq!('l',order_p[&'!'][&'|']);
-    //     assert_eq!('l',order_p[&'!'][&'>']);
-    //     assert_eq!('l',order_p[&'!'][&'~']);
-    //     assert_eq!('r',order_p[&'&'][&'!']);
-    //     assert_eq!('l',order_p[&'&'][&'&']);
-    //     assert_eq!('l',order_p[&'&'][&'|']);
-    //     assert_eq!('l',order_p[&'&'][&'>']);
-    //     assert_eq!('l',order_p[&'&'][&'~']);
-    //     assert_eq!('r',order_p[&'|'][&'!']);
-    //     assert_eq!('r',order_p[&'|'][&'&']);
-    //     assert_eq!('l',order_p[&'|'][&'|']);
-    //     assert_eq!('l',order_p[&'|'][&'>']);
-    //     assert_eq!('l',order_p[&'|'][&'~']);
-    //     assert_eq!('r',order_p[&'>'][&'!']);
-    //     assert_eq!('r',order_p[&'>'][&'&']);
-    //     assert_eq!('r',order_p[&'>'][&'|']);
-    //     assert_eq!('l',order_p[&'>'][&'>']);
-    //     assert_eq!('l',order_p[&'>'][&'~']);
-    //     assert_eq!('r',order_p[&'~'][&'!']);
-    //     assert_eq!('r',order_p[&'~'][&'&']);
-    //     assert_eq!('r',order_p[&'~'][&'|']);
-    //     assert_eq!('r',order_p[&'~'][&'>']);
-    //     assert_eq!('l',order_p[&'~'][&'~']);
-    // }
-
-    // #[test]
-    // fn check_a_and_b(){
-    //     let postfix = infix_to_postfix("A&B");
-    //     println!("{}",postfix);
-    //     assert_eq!("AB&",postfix);
-    // }
+    #[test]
+    fn check_a_and_b(){
+        let postfix = infix_to_postfix("A&B");
+        println!("{}",postfix);
+        assert_eq!("AB&",postfix);
+    }
 
     #[test]
     fn check_a_and_b_and_c(){
@@ -127,4 +132,38 @@ mod tests {
         assert_eq!("AB&C&",postfix);
     }
 
+    #[test]
+    fn check_a_and_b_or_c(){
+        let postfix = infix_to_postfix("A&B|C");
+        println!("{}",postfix);
+        assert_eq!("AB&C|",postfix);
+    }
+
+    #[test]
+    fn check_a_and_b_or_c_and_d(){
+        let postfix = infix_to_postfix("A&B|C&D");
+        println!("{}",postfix);
+        assert_eq!("AB&CD&|",postfix);
+    }
+
+    #[test]
+    fn check_not_a_and_b_or_c_and_d(){
+        let postfix = infix_to_postfix("![A&B|C&D]");
+        println!("{}",postfix);
+        assert_eq!("AB&CD&|!",postfix);
+    }
+
+    #[test]
+    fn check_not_a_and_b_or_not_c_and_d(){
+        let postfix = infix_to_postfix("![A&B]|![C&D]");
+        println!("{}",postfix);
+        assert_eq!("AB&!CD&!|",postfix);
+    }
+
+    #[test]
+    fn check_not_a_and_b_and_c_or_d_and_e_and_f(){
+        let postfix = infix_to_postfix("![A&B&C]|[D&E&F]");
+        println!("{}",postfix);
+        assert_eq!("AB&C&!DE&F&|",postfix);
+    }
 }
