@@ -1,11 +1,20 @@
+use std::collections::HashMap;
+
 use crate::expression_tree::logic;
 
 type ChildNode<T> = Option<Box<BTNode<T>>>;
+type BChildNode<'a, T> = Option<Box<&'a BBTNode<'a, T>>>;
 
 pub struct BTNode<T> {
     op: Op<T>,
     left: ChildNode<T>,
     right: ChildNode<T>
+}
+
+pub struct BBTNode<'a, T> {
+    op: Op<T>,
+    left: &'a BChildNode<'a, T>,
+    right: &'a BChildNode<'a, T>
 }
 
 pub enum Op<T> {
@@ -14,7 +23,8 @@ pub enum Op<T> {
     Or,
     Implies,
     Equivalent,
-    Val(T)
+    Val(T),
+    Key(String)
 }
 
 // This Binary Tree holding logic expressions also has a truth table
@@ -28,29 +38,15 @@ impl BTNode<bool> {
             op: op, left: Some(Box::new(l)), right: Some(Box::new(r))
         }
     }
-
-    pub fn new_op_only(op: Op<bool>) -> Self {
-        BTNode::<bool> {
-            op: op, left: None, right: None
-        }
-    }
-    
-    pub fn new_op_left(op: Op<bool>, l: BTNode<bool>) -> Self {
-        BTNode::<bool> {
-            op: op, left: Some(Box::new(l)), right: None
-        }
-    }
-
-    pub fn new_op_right(op: Op<bool>, r: BTNode<bool>) -> Self {
-        BTNode::<bool> {
-            op: op, left: None, right: Some(Box::new(r))
-        }
-    }
 }
 
 pub fn and_node(l: BTNode<bool>, r: BTNode<bool>) -> BTNode<bool> {
     BTNode::new(Op::And, l, r)
 }
+
+// pub fn anda_node <'a> (l: &BBTNode<'a, bool>, r: &'a' BBTNode<'a, bool>) -> BBTNode<'a, bool> {
+//     BBTNode::<bool> {op: Op::And, left: &Some(Box::new(l)), right: &Some(Box::new(r)) }
+// }
 
 pub fn or_node(l: BTNode<bool>, r: BTNode<bool>) -> BTNode<bool> {
     BTNode::new(Op::Or, l, r)
@@ -73,24 +69,28 @@ pub fn val_node(value: bool) -> BTNode<bool> {
     BTNode::<bool> { op: Op::Val(value), left: None, right: None }
 }
 
+pub fn key_node(value: String) -> BTNode<bool> {
+    BTNode::<bool> { op: Op::Key(value), left: None, right: None }
+}
+
 impl BinaryTree<bool> {
     pub fn new(head: BTNode<bool>) -> Self {
         BinaryTree::<bool> {head: Some(head)}
     }
 
-    pub fn collapse(node: &Box<BTNode<bool>>) -> bool {
+    pub fn collapse(node: &Box<BTNode<bool>>, truth_table: &mut HashMap<String,bool>) -> bool {
         // l and r are optional boolean variables (which can get updated)
         let mut l: Option<bool> = None;
         let mut r: Option<bool> = None;
 
         // if the input node 'left' exists then collapse it and set l to be the collapsed boolean value.
         if let Some(left) = &node.left {
-            l = Some(BinaryTree::collapse(left));
+            l = Some(BinaryTree::collapse(left, truth_table));
         }
 
         // if the input node 'right' exists then collapse it and set r to be the collapsed boolean value
         if let Some(right) = &node.right {
-            r = Some(BinaryTree::collapse(right));
+            r = Some(BinaryTree::collapse(right, truth_table));
         }
 
         // This section should only get accessed once the node is a terminating node.
@@ -100,17 +100,22 @@ impl BinaryTree<bool> {
         let r: bool = if let Some(x) = r { x } else { false };
 
         // Rust returns the last expression in a function (if there isn't an explicit return)
-        match node.op {
+        match &node.op {
             Op::And => { logic::and(l,r)}
             Op::Or =>  { logic::or(l,r)}
             //  Negative must live on the left branch
             Op::Neg =>  { logic::negative(l)}
             Op::Equivalent => {logic::equivalent(l,r)}
             Op::Implies => {logic::implies(l, r)}
-            Op::Val(x) => x
+            Op::Val(x) => { *x }
+            Op::Key(x) => { match truth_table.get(x) {
+                None => {println!("{} was not in the dictionary, returned false", x); return false;}
+                Some(truth_value) => {*truth_value}
+                }}
          }
 
     }
+    
 }
 
 #[cfg(test)]
@@ -119,224 +124,256 @@ mod tests {
 
     #[test]
     fn test_tree_and() {
+        let mut truth_table = HashMap::new();
+
         let bt = BinaryTree::new(
             and_node(val_node(true), val_node(true))
         );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             and_node(val_node(true), val_node(false))
         );
-        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             and_node(val_node(false), val_node(true))
         );
-        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             and_node(val_node(false), val_node(false))
         );
-        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
+
+        let and_keyed_bt = BinaryTree::new(
+            and_node(key_node("A".to_string()), key_node("B".to_string()))
+        );
+
+        truth_table.insert("A".to_string(), true);
+        truth_table.insert("B".to_string(), true);
+
+        // assert!(BinaryTree::collapse(&Box::new(and_keyed_bt.head.as_ref().expect("No Head")),&mut truth_table));
+
+        *truth_table.entry("B".to_string()).or_insert(false) = false;
+
+        assert!(!BinaryTree::collapse(&Box::new(and_keyed_bt.head.expect("No Head")),&mut truth_table));
+
     }
 
     #[test]
     fn test_tree_or() {
+        let mut truth_table = HashMap::new();
+
         let bt = BinaryTree::new(
             or_node(val_node(true), val_node(true))
         );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             or_node(val_node(true), val_node(false))
         );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             or_node(val_node(false), val_node(true))
         );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             or_node(val_node(false), val_node(false))
         );
-        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
     }
 
     #[test]
     fn test_tree_implies() {
+        let mut truth_table = HashMap::new();
+
         let bt = BinaryTree::new(
             implies_node(val_node(true), val_node(true))
         );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             implies_node(val_node(true), val_node(false))
         );
-        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             implies_node(val_node(false), val_node(true))
         );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             implies_node(val_node(false), val_node(false))
         );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
     }
 
     #[test]
     fn test_tree_equivalent() {
+        let mut truth_table = HashMap::new();
+
         let bt = BinaryTree::new(
             eq_node(val_node(true), val_node(true))
         );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             eq_node(val_node(true), val_node(false))
         );
-        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             eq_node(val_node(false), val_node(true))
         );
-        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             eq_node(val_node(false), val_node(false))
         );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
     }
 
     #[test]
     fn test_tree_negative() {
-        let bt = BinaryTree::new(
-            neg_node(val_node(true))
-        );
-        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        let mut truth_table = HashMap::new();
 
         let bt = BinaryTree::new(
             neg_node(val_node(true))
         );
-        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
+
+        let bt = BinaryTree::new(
+            neg_node(val_node(true))
+        );
+        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             neg_node(val_node(false))
         );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             neg_node(val_node(false))
         );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
     }
 
     #[test]
     fn test_triple_and() {
+        let mut truth_table = HashMap::new();
+
         let bt = BinaryTree::new(
             and_node(
                 and_node(val_node(true), val_node(true)), val_node(true))
             );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             and_node(
                 and_node(val_node(true), val_node(true)), val_node(false))
             );
-        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             and_node(
                 and_node(val_node(true), val_node(false)), val_node(true))
             );
-        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             and_node(
                 and_node(val_node(false), val_node(true)), val_node(true))
             );
-        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
     }
     
     #[test]
     fn test_triple_and_reverse() {
+        let mut truth_table = HashMap::new();
+
         let bt = BinaryTree::new(
             and_node(
                 val_node(true), and_node(val_node(true), val_node(true)))
             );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             and_node(
                 val_node(false), and_node(val_node(true), val_node(true)))
             );
-        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             and_node(
                 val_node(true), and_node(val_node(true), val_node(false)))
             );
-        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             and_node(
                 val_node(true), and_node(val_node(false), val_node(true)))
             );
-        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
     }
 
     #[test]
     fn test_triple_or() {
+        let mut truth_table = HashMap::new();
+
         let bt = BinaryTree::new(
             or_node(
                 or_node(val_node(false), val_node(false)), val_node(false))
             );
-        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             or_node(
                 or_node(val_node(true), val_node(false)), val_node(false))
             );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             or_node(
                 or_node(val_node(false), val_node(true)), val_node(false))
             );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             or_node(
                 or_node(val_node(false), val_node(false)), val_node(true))
             );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
     }
 
     #[test]
     fn test_triple_or_reverse() {
+        let mut truth_table = HashMap::new();
+        
         let bt = BinaryTree::new(
             or_node(
                 val_node(false), or_node(val_node(false), val_node(false)))
             );
-        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(!BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             or_node(
                 val_node(false), or_node(val_node(true), val_node(false)))
             );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             or_node(
                 val_node(false), or_node(val_node(false), val_node(true)))
             );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
 
         let bt = BinaryTree::new(
             or_node(
                 val_node(true), or_node(val_node(false), val_node(false)))
             );
-        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head"))));
+        assert!(BinaryTree::collapse(&Box::new(bt.head.expect("No Head")),&mut truth_table));
     }
 }
